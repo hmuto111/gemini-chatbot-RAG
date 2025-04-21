@@ -1,0 +1,6 @@
+llama-index
+google-generativeai
+qdrant-client
+llama-index-multi-modal-llms-gemini
+llama-index-vector-stores-qdrant
+llama-index-embeddings-gemini
