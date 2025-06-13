@@ -1,6 +1,6 @@
 llama-index
-google-generativeai
+google-genai
 qdrant-client
-llama-index-multi-modal-llms-gemini
+llama-index-llms-gemini
 llama-index-vector-stores-qdrant
 llama-index-embeddings-gemini

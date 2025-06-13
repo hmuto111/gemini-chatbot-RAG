@@ -1,2 +1,4 @@
 .env
 venv
+todo.txt
+qdrant_data
