@@ -1,8 +1,9 @@
 import os
 from dotenv import load_dotenv
+import uuid
 
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams
+from qdrant_client.models import Distance, VectorParams, PointStruct
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 
 from llama_index.embeddings.gemini import GeminiEmbedding
@@ -20,7 +21,7 @@ try:
     # コレクション作成
     qdrant_client.recreate_collection(
         collection_name=collection_name,
-        vectors_config=VectorParams(size=4096, distance=Distance.COSINE),
+        vectors_config=VectorParams(size=768, distance=Distance.COSINE),
     )
     print(f"Collection '{collection_name}' created successfully.")
 except Exception as e:
@@ -36,9 +37,24 @@ documents = SimpleDirectoryReader("../data").load_data()
 print(f"Loaded {len(documents)} documents.")
 
 print("Creating index and storing embeddings in Qdrant using Gemini Embedding...")
-index = VectorStoreIndex.from_documents(
-    documents,
-    vector_store=vector_store,
+# index = VectorStoreIndex.from_documents(
+#     documents,
+#     vector_store=vector_store,
+# )
+
+points = []
+for doc in documents:
+    vec = Settings.embed_model.get_text_embedding(doc.text)
+    # 一意のIDを振る
+    points.append(PointStruct(
+        id=str(uuid.uuid4()),
+        vector=vec,
+        payload={"text": doc.text},
+    ))
+# ここで明示的に upsert
+qdrant_client.upsert(
+    collection_name=collection_name,
+    points=points,
 )
 print("Index created and embeddings stored successfully.")
 
@@ -47,3 +63,17 @@ print("Index created and embeddings stored successfully.")
 # --- コレクション確認 ---
 count_resp = qdrant_client.count(collection_name=collection_name)
 print(f"Collection '{collection_name}' point count: {count_resp}")
+
+# --- Qdrant 中身確認用スニペット ---
+print("Dumping stored points…")
+# 最大 100 件ずつスクロールで取得
+points, next_page = qdrant_client.scroll(
+    collection_name=collection_name,
+    limit=100,
+    with_payload=True,
+    with_vectors=False,
+)
+
+print(f"total retrieved: {len(points)}")
+for pt in points:
+    print(f"id={pt.id}, payload={pt.payload}")
