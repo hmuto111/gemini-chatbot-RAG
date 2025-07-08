@@ -3,3 +3,4 @@ venv
 todo.txt
 qdrant_data
 data
+models
