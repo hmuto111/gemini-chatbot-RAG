@@ -152,9 +152,14 @@ response = llm.complete("この画像について説明してください")
     def save_results(self, results: Dict[str, Any], filename: str = "gemini_models_analysis.json"):
         """結果をJSONファイルに保存"""
         try:
-            with open(filename, 'w', encoding='utf-8') as f:
+            # modelsディレクトリに保存
+            models_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "models")
+            os.makedirs(models_dir, exist_ok=True)
+            
+            filepath = os.path.join(models_dir, filename)
+            with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(results, f, ensure_ascii=False, indent=2)
-            print(f"結果を {filename} に保存しました")
+            print(f"結果を {filepath} に保存しました")
         except Exception as e:
             print(f"ファイル保存エラー: {e}")
     
@@ -233,7 +238,7 @@ def main():
         
         print("\n=== 分析完了 ===")
         if save_to_file:
-            print("詳細な結果はgemini_models_analysis.jsonファイルに保存されました")
+            print("詳細な結果はmodels/gemini_models_analysis.jsonファイルに保存されました")
         
     except Exception as e:
         print(f"エラーが発生しました: {e}")
