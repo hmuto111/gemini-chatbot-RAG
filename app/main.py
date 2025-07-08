@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
-from llama_index.llms.gemini import Gemini
-from llama_index.embeddings.gemini import GeminiEmbedding
+from llama_index.llms.google_genai import GoogleGenAI
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.core import Settings, VectorStoreIndex
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
@@ -10,14 +10,14 @@ from qdrant_client import QdrantClient
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-Settings.llm = Gemini(
+Settings.llm = GoogleGenAI(
     model_name="models/gemini-2.0-flash",
     temperature=0.22,
     api_key=GOOGLE_API_KEY
 )
 
-Settings.embed_model = GeminiEmbedding(
-    model="models/text-embedding-004",
+Settings.embed_model = GoogleGenAIEmbedding(
+    model="models/gemini-embedding-exp-03-07",
     api_key=GOOGLE_API_KEY,
     task_type="RETRIEVAL_DOCUMENT"
 )
@@ -56,7 +56,7 @@ def main():
           print("Exiting the program.")
           break
       
-      retriever = index.as_retriever(similarity_top_k=3, embed_model=Settings.embed_model)
+      retriever = index.as_retriever(similarity_top_k=10, embed_model=Settings.embed_model)
       retrieved_nodes = retriever.retrieve(query)
 
       reference = ""
@@ -80,6 +80,7 @@ def main():
 以下の場合は必ず空の文字列（何も書かない状態）で応答してください：
 1. 参考情報が「TUNAシステムの機能に関連する情報は見つかりませんでした。」の場合
 2. 質問がTUNAシステムの機能と無関係の場合
+3. 質問が意味不明または極端に短い場合（「あ」「うん」など）
 
 上記に該当する場合は、説明文や謝罪文は一切書かず、完全に空の状態で応答してください。
 
@@ -88,10 +89,14 @@ def main():
 2. **ユーザー視点**: 初心者にも分かりやすい言葉遣い
 3. **完結性**: 1回の回答で必要な情報を完結
 4. **関連機能の提案**: 質問された機能に関連する便利な機能も紹介
-5. **ページ案内**: ページ案内を依頼されたらページURLを案内する（その時は回答構造に従わない）
+5. **URL提供**: 該当するページのURLがある場合は必ず含める
+6. **ポイント・注意事項**: システムの概要などを聞かれた場合は、回答構造に従わず簡潔に答える
+7. **システム説明**: 特定の機能について聞かれてるとき以外は、回答構造に従わず簡潔に説明する(機能概要優先的にに参照)
 
 ## 回答構造
 ```
+[簡潔に質問に回答]
+
 ## 📋 [機能名]
 
 ### ✨ 概要
@@ -101,6 +106,9 @@ def main():
 1. [具体的なステップ1]
 2. [具体的なステップ2]
 3. [具体的なステップ3]
+
+### 🌐 関連リンク
+- [該当するページのURL]
 
 ### 💡 ポイント・注意事項
 - [重要なポイント]
