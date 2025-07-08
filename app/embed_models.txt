@@ -1,4 +1,0 @@
-models/embedding-001
-models/text-embedding-004
-models/gemini-embedding-exp-03-07
-models/gemini-embedding-exp

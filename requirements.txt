@@ -6,3 +6,6 @@ llama-index-vector-stores-qdrant
 llama-index-embeddings-google_genai
 llama-index-readers-file
 llama-index-core
+fastapi
+uvicorn
+pydantic
