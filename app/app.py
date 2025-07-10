@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from pydantic import BaseModel
 import uvicorn
 import redis
@@ -67,7 +67,9 @@ async def lifespan(app: FastAPI):
 # FastAPIアプリケーション作成
 app = FastAPI(title="TUNA RAG ChatBot API", lifespan=lifespan)
 
-@app.get("/create/session")
+api_router = APIRouter(prefix="/api/v1", tags=["CHATBOT API v1"])
+
+@api_router.get("/create/session")
 async def create_session() -> dict:
     """
     ユーザーの会話セッションを作成し、セッションIDを返す関数
@@ -82,7 +84,7 @@ class QueryRequest(BaseModel):
     session_id: str
     query: str
 
-@app.post("/create/chat/{session_id}")
+@api_router.post("/create/chat/{session_id}")
 async def create_query(request: QueryRequest):
     """
     ユーザーの質問を受け取り、回答を生成する関数
@@ -104,6 +106,8 @@ async def create_query(request: QueryRequest):
         return {"response": response}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create chat: {e}")
+
+app.include_router(api_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=8000, log_level="debug")
