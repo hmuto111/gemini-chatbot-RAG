@@ -42,7 +42,7 @@ def format_response_history(history):
     
     formatted = ""
     for i, item in enumerate(history[-3:], 1):  # 直近3件のみ
-        formatted += f"Q{i}: {item['query']}\nA{i}: {item['response'][:100]}...\n\n"
+        formatted += f"Q{i}: {item['query']}\nA{i}: {item['response']}...\n\n"
 
     return formatted
 

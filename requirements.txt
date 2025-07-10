@@ -9,3 +9,4 @@ llama-index-core
 fastapi
 uvicorn
 pydantic
+redis
