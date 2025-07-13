@@ -9,7 +9,7 @@ import sys
 import json
 from typing import List, Dict, Any
 from dotenv import load_dotenv
-import google.generativeai as genai
+import google.genai as genai
 
 # 環境変数の読み込み
 load_dotenv()
