@@ -1,20 +1,25 @@
 .chat_container {
   display: flex;
   flex-direction: column;
-  height: 95%;
-  width: 80%;
+  height: 85vh;
+  width: 100%;
   align-items: center;
   justify-content: space-between;
 }
 
 .chat_content_wrapper {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
+  max-height: 80%;
+  overflow-y: hidden;
 }
 
 .query_container_wrapper {
-  width: 90%;
-  min-height: 25%;
+  width: 80%;
+  min-height: 20%;
   max-height: 50vh;
   flex-shrink: 0;
 }
