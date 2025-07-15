@@ -5,6 +5,7 @@
   width: 100%;
   align-items: center;
   justify-content: space-between;
+  gap: 3px;
 }
 
 .chat_content_wrapper {

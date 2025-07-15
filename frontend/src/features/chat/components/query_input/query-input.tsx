@@ -1,16 +1,44 @@
+import type { chatHistory } from "../../types/chat-history";
+import { createResponse } from "../../api/create-response";
 import styles from "./query-input.module.css";
 import { IoSend } from "react-icons/io5";
 
 type Props = {
+  sessionId: string | null;
   query: string;
   setQuery: (query: string) => void;
+  chatHistory: chatHistory[];
+  setChatHistory: (chatHistory: chatHistory[]) => void;
 };
 
-export const QueryInput = ({ query, setQuery }: Props) => {
-  const handleQuerySend = () => {
+export const QueryInput = ({
+  sessionId,
+  query,
+  setQuery,
+  chatHistory,
+  setChatHistory,
+}: Props) => {
+  const handleQuerySend = async () => {
     console.log("Query sent:", query);
-    // apiの処理を書く
+    if (!sessionId || !query.trim()) {
+      console.error("Session ID or query is missing.");
+      return;
+    }
+
+    const user_query = query;
     setQuery("");
+
+    setChatHistory([...chatHistory, { userQuery: query, aiResponse: "" }]);
+
+    const response = await createResponse({
+      session_id: sessionId,
+      user_query: user_query,
+    });
+
+    setChatHistory([
+      ...chatHistory,
+      { userQuery: query, aiResponse: response.response },
+    ]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

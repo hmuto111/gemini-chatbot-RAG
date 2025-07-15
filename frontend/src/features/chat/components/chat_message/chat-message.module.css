@@ -14,4 +14,6 @@
   margin: 5px 0;
   box-sizing: border-box;
   align-self: center;
+  background-color: rgba(255, 255, 255, 0.345);
+  border-radius: 10px;
 }

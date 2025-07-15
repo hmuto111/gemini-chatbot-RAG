@@ -5,6 +5,15 @@
   max-height: 100%;
   width: 90%;
   padding: 20px;
-  color: #000080;
+  color: #6b4d3c;
+  font-weight: 500;
   overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.chat_message {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 75px;
 }

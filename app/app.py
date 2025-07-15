@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 import redis
@@ -67,6 +68,9 @@ async def lifespan(app: FastAPI):
 # FastAPIアプリケーション作成
 app = FastAPI(title="TUNA RAG ChatBot API", lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,allow_origins=["*"],allow_methods=["*"],allow_headers=["*"],)
+
 api_router = APIRouter(prefix="/api/v1", tags=["CHATBOT API v1"])
 
 @api_router.get("/create/session")
@@ -84,7 +88,7 @@ class QueryRequest(BaseModel):
     session_id: str
     query: str
 
-@api_router.post("/create/chat/{session_id}")
+@api_router.post("/create/chat")
 async def create_query(request: QueryRequest):
     """
     ユーザーの質問を受け取り、回答を生成する関数
