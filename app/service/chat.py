@@ -21,7 +21,7 @@ class ChatService:
         Settings.embed_model = GoogleGenAIEmbedding(
             model="models/gemini-embedding-exp-03-07",
             api_key=self.google_api_key,
-            task_type="RETRIEVAL_DOCUMENT"
+            task_type="RETRIEVAL_QUERY"
         )
 
         self.qdrant_client = QdrantClient(url=os.getenv("QDRANT_URL"))

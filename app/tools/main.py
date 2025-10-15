@@ -19,7 +19,7 @@ Settings.llm = GoogleGenAI(
 Settings.embed_model = GoogleGenAIEmbedding(
     model="models/gemini-embedding-exp-03-07",
     api_key=GOOGLE_API_KEY,
-    task_type="RETRIEVAL_DOCUMENT"
+    task_type="RETRIEVAL_QUERY"
 )
 
 qdrant_client = QdrantClient(url=os.getenv("QDRANT_URL"))
@@ -63,6 +63,8 @@ def main():
       if retrieved_nodes:
          print(f"Found {len(retrieved_nodes)} relevant source nodes.")
          for i, node in enumerate(retrieved_nodes):
+            score = getattr(node, 'score', 'N/A')
+            print(f"類似度スコア: {score}\nテキスト概要: {node.text[:100]}...")  # 最初の50文字を表示
             reference += f"## 参考情報 {i+1}\n"
             reference += f"{node.text}\n\n"
       else:
