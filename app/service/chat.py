@@ -1,5 +1,7 @@
 import os
+from typing import Optional
 from dotenv import load_dotenv
+from service.conversation_manager import ConversationManager
 from llama_index.llms.google_genai import GoogleGenAI
 from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.core import Settings, VectorStoreIndex
@@ -8,9 +10,13 @@ from qdrant_client import QdrantClient
 
 load_dotenv()
 
+# シングルトンインスタンスの管理
+_chat_service_instance = None
+
 class ChatService:
-    def __init__(self):
+    def __init__(self, manager: Optional[ConversationManager] = None):
         self.google_api_key = os.getenv("GOOGLE_API_KEY")
+        self.manager = manager
 
         # LLMと埋め込みモデルの設定
         Settings.llm = GoogleGenAI(
@@ -150,12 +156,35 @@ class ChatService:
             print("応答の生成に失敗しました。")
             return "応答の生成に失敗しました。もう一度お試しください。"
         
-# シングルトンインスタンスの管理
-_chat_service_instance = None
+    
+    async def handle_query(self, session_id: str, query: str) -> str:
+        """
+        ユーザーからのクエリを処理し、レスポンスを生成,
+        レスポンスを保存する処理をする関数
+        """
+        if self.manager is None:
+            raise RuntimeError("ConversationManagerが未設定です。")
 
-def get_chat_service() -> ChatService:
+        past_conversation = self.manager.get_conversation(session_id)
+
+        # 回答を生成
+        response = await self.create_response(
+            query=query,
+            conversation=past_conversation
+        )
+
+        # 会話履歴を保存
+        self.manager.save_conversation(session_id=session_id, conversation={
+            "query": query,
+            "response": response
+        })
+
+        return response
+
+
+def get_chat_service(manager: Optional[ConversationManager]) -> ChatService:
     """ChatServiceのシングルトンインスタンスを取得"""
     global _chat_service_instance
     if _chat_service_instance is None:
-        _chat_service_instance = ChatService()
+        _chat_service_instance = ChatService(manager=manager)
     return _chat_service_instance

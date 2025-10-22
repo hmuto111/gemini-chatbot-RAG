@@ -1,5 +1,8 @@
 import json
 
+# シングルトンインスタンスの管理
+_manager_instance = None
+
 class ConversationManager:
     def __init__(self, redis_client):
         self.redis_client = redis_client
@@ -29,9 +32,6 @@ class ConversationManager:
         # 最新の3つの会話履歴を取得
         return [json.loads(item) for item in self.redis_client.lrange(key, -3, -1)]
 
-
-# シングルトンインスタンスの管理
-_manager_instance = None
 
 def get_manager(redis_client) -> ConversationManager:
     """ChatServiceのシングルトンインスタンスを取得"""

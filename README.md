@@ -42,7 +42,7 @@ npm run dev
 ```bash
 cd app
 
-uvicorn app:app --reload
+uvicorn main:app --reload
 ```
 
 ### DB

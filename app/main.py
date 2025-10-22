@@ -1,12 +1,12 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import uvicorn
 import redis
 from dotenv import load_dotenv
 from service.chat import get_chat_service
 from service.conversation_manager import ConversationManager
+from api.api import api_router
 
 load_dotenv()
 
@@ -28,14 +28,6 @@ async def lifespan(app: FastAPI):
         else:
             print("✅ Redis接続成功")
 
-        # chat_serviceの初期化
-        try:
-            chat_service = get_chat_service()
-            print("✅ ChatService初期化完了")
-        except Exception as e:
-            print(f"❌ ChatService初期化失敗: {e}")
-            raise RuntimeError(f"ChatService initialization failed: {e}")
-
         # managerの初期化
         try:
             manager = ConversationManager(redis_client)
@@ -43,6 +35,18 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"❌ ConversationManager初期化失敗: {e}")
             raise RuntimeError(f"ConversationManager initialization failed: {e}")
+
+        # chat_serviceの初期化
+        try:
+            chat_service = get_chat_service(manager)
+            print("✅ ChatService初期化完了")
+        except Exception as e:
+            print(f"❌ ChatService初期化失敗: {e}")
+            raise RuntimeError(f"ChatService initialization failed: {e}")
+
+        app.state.redis_client = redis_client
+        app.state.manager = manager
+        app.state.chat_service = chat_service
 
     except redis.ConnectionError as e:
         print(f"❌ redis接続エラーが発生しました: {e}")
@@ -65,51 +69,12 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"❌ Redis接続のシャットダウン中にエラーが発生しました: {e}")
 
+
 # FastAPIアプリケーション作成
 app = FastAPI(title="TUNA RAG ChatBot API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,allow_origins=["*"],allow_methods=["*"],allow_headers=["*"],)
-
-api_router = APIRouter(prefix="/api/v1", tags=["CHATBOT API v1"])
-
-@api_router.get("/create/session")
-async def create_session() -> dict:
-    """
-    ユーザーの会話セッションを作成し、セッションIDを返す関数
-    """
-    try:
-        session_id = manager.generate_sequential_session_id()
-        return {"session_id": session_id}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create session: {e}")
-
-class QueryRequest(BaseModel):
-    session_id: str
-    query: str
-
-@api_router.post("/create/chat")
-async def create_query(request: QueryRequest):
-    """
-    ユーザーの質問を受け取り、回答を生成する関数
-    """
-    try:
-        past_conversation = manager.get_conversation(request.session_id)
-        # 回答を生成
-        response = await chat_service.create_response(
-            query=request.query,
-            conversation=past_conversation
-        )
-
-        # 会話履歴を保存
-        manager.save_conversation(session_id=request.session_id, conversation={
-            "query": request.query,
-            "response": response
-        })
-
-        return {"response": response}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create chat: {e}")
 
 app.include_router(api_router)
 
