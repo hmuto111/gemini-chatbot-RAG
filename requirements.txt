@@ -1,9 +1,8 @@
 llama-index
-google-genai
 qdrant-client
-llama-index-llms-google_genai
+llama-index-llms-google-genai
 llama-index-vector-stores-qdrant
-llama-index-embeddings-google_genai
+llama-index-embeddings-google-genai
 llama-index-readers-file
 llama-index-core
 fastapi
