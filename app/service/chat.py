@@ -20,12 +20,12 @@ class ChatService:
 
         # LLMと埋め込みモデルの設定
         Settings.llm = GoogleGenAI(
-            model_name="models/gemini-2.0-flash",
+            model_name="models/gemini-2.5-flash",
             temperature=0.3,
             api_key=self.google_api_key
         )
         Settings.embed_model = GoogleGenAIEmbedding(
-            model="models/gemini-embedding-exp-03-07",
+            model="models/gemini-embedding-004",
             api_key=self.google_api_key,
             task_type="RETRIEVAL_QUERY"
         )
@@ -79,12 +79,12 @@ class ChatService:
 ユーザーがTUNAシステムを効果的に活用できるよう、正確で実用的なサポートを提供してください。
 
 ## 重要：応答判定ルール
-以下の場合は必ず空の文字列（何も書かない状態）で応答してください：
+以下の場合は必ず'None'で応答してください：
 1. 参考情報が「TUNAシステムの機能に関連する情報は見つかりませんでした。」の場合
 2. 質問がTUNAシステムの機能と無関係の場合
 3. 質問が意味不明または極端に短い場合（「あ」「うん」など）
 
-上記に該当する場合は、説明文や謝罪文は一切書かず、完全に空の状態で応答してください。
+上記に該当する場合は、説明文や謝罪文は一切書かず、'None'で応答してください。
 
 ## 回答方針
 1. **具体性重視**: 操作手順は番号付きリストで段階的に説明
