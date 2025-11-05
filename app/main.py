@@ -44,6 +44,7 @@ async def lifespan(app: FastAPI):
             print(f"❌ ChatService初期化失敗: {e}")
             raise RuntimeError(f"ChatService initialization failed: {e}")
 
+        # インスタンスをアプリケーション全体に保存
         app.state.redis_client = redis_client
         app.state.manager = manager
         app.state.chat_service = chat_service
