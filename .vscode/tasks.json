@@ -1,0 +1,65 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "rag-activate-venv",
+      "type": "shell",
+      "command": "source venv/bin/activate && pip install -r requirements.txt",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true,
+        "close": false
+      }
+    },
+    {
+      "label": "rag-install-lib",
+      "type": "shell",
+      "command": "pip install -r requirements.txt",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true,
+        "close": false
+      }
+    },
+    {
+      "label": "rag-run-backend",
+      "type": "shell",
+      "command": "source venv/bin/activate && cd app && uvicorn main:app --reload",
+      "presentation": {
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "rag-run-frontend",
+      "type": "shell",
+      "command": "cd frontend && mise x -- pnpm i && mise x -- pnpm run dev",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "rag-run-db",
+      "type": "shell",
+      "command": "docker compose up",
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    }
+  ]
+}

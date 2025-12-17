@@ -32,9 +32,9 @@ python3 embedding.py
 ```bash
 cd frontend
 
-npm install
+pnpm i
 
-npm run dev
+pnpm run dev
 ```
 
 ### backend

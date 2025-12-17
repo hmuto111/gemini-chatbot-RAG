@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from service.conversation_manager import ConversationManager
 from llama_index.llms.google_genai import GoogleGenAI
 from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
+from google.genai.types import EmbedContentConfig
 from llama_index.core import Settings, VectorStoreIndex
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
@@ -20,14 +21,14 @@ class ChatService:
 
         # LLMと埋め込みモデルの設定
         Settings.llm = GoogleGenAI(
-            model_name="models/gemini-2.5-flash",
-            temperature=0.3,
+            model="models/gemini-2.5-flash",
+            temperature=0.22,
             api_key=self.google_api_key
         )
         Settings.embed_model = GoogleGenAIEmbedding(
-            model="models/gemini-embedding-004",
+            model_name="models/gemini-embedding-001",
             api_key=self.google_api_key,
-            task_type="RETRIEVAL_QUERY"
+            embedding_config=EmbedContentConfig(task_type="QUESTION_ANSWERING", output_dimensionality=768),
         )
 
         self.qdrant_client = QdrantClient(url=os.getenv("QDRANT_URL"))
@@ -109,6 +110,9 @@ class ChatService:
 2. [具体的なステップ2]
 3. [具体的なステップ3]
 
+### 操作画像
+![画像説明](画像URL)
+
 ### 🌐 関連リンク
 - [該当するページのURL]
 
@@ -165,19 +169,21 @@ class ChatService:
         if self.manager is None:
             raise RuntimeError("ConversationManagerが未設定です。")
 
-        past_conversation = self.manager.get_conversation(session_id)
+        try: 
+            past_conversation = self.manager.get_conversation(session_id)
+            # 回答を生成
+            response = await self.create_response(
+                query=query,
+                conversation=past_conversation
+            )
 
-        # 回答を生成
-        response = await self.create_response(
-            query=query,
-            conversation=past_conversation
-        )
-
-        # 会話履歴を保存
-        self.manager.save_conversation(session_id=session_id, conversation={
-            "query": query,
-            "response": response
-        })
+            # 会話履歴を保存
+            self.manager.save_conversation(session_id=session_id, conversation={
+                "query": query,
+                "response": response
+            })
+        except Exception as e:
+            print("error", e)
 
         return response
 

@@ -8,7 +8,7 @@ from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from google.genai.types import EmbedContentConfig
 from llama_index.core import SimpleDirectoryReader, StorageContext, VectorStoreIndex
-from llama_index.core.node_parser import SentenceSplitter,MarkdownNodeParser,MarkdownNodeParser
+from llama_index.core.node_parser import SentenceSplitter
 
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -16,10 +16,11 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 # google-genai embed model 
 embed_model = GoogleGenAIEmbedding(
     api_key=GOOGLE_API_KEY,
-    model_name="models/text-embedding-004",
-    embed_config=EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT"),
-    query_embed_config=EmbedContentConfig(task_type="RETRIEVAL_QUERY"),
+    model_name="models/gemini-embedding-001",
+    embedding_config=EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT", output_dimensionality=768),
 )
+
+embeddings = embed_model.get_text_embedding("Google Gemini Embeddings.")
 
 # qdrant client
 client = qdrant_client.QdrantClient(url=os.getenv("QDRANT_URL"))

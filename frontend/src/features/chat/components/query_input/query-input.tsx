@@ -2,6 +2,7 @@ import type { chatHistory } from "../../types/chat-history";
 import { createResponse } from "../../api/create-response";
 import styles from "./query-input.module.css";
 import { IoSend } from "react-icons/io5";
+import { useRef } from "react";
 
 type Props = {
   sessionId: string | null;
@@ -13,12 +14,14 @@ type Props = {
 
 export const QueryInput = ({
   sessionId,
-  query,
-  setQuery,
   chatHistory,
   setChatHistory,
 }: Props) => {
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
   const handleQuerySend = async () => {
+    const query = inputRef.current?.value || "";
+
     console.log("Query sent:", query);
     if (!sessionId || !query.trim()) {
       console.error("Session ID or query is missing.");
@@ -26,7 +29,10 @@ export const QueryInput = ({
     }
 
     const user_query = query;
-    setQuery("");
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
 
     setChatHistory([...chatHistory, { userQuery: query, aiResponse: "" }]);
 
@@ -52,11 +58,10 @@ export const QueryInput = ({
     <div className={styles.query_container}>
       <div className={styles.query_box}>
         <textarea
+          ref={inputRef}
           className={styles.query_area}
           placeholder="Tuna AIへの質問を入力..."
-          onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          value={query}
         />
         <button
           className={styles.query_send}
