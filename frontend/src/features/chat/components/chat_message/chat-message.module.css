@@ -1,0 +1,19 @@
+.user_chat_message {
+  max-width: 350px;
+  background-color: #e0f7fa;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 5px 0;
+  box-sizing: border-box;
+  align-self: flex-end;
+}
+
+.ai_chat_message {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  box-sizing: border-box;
+  align-self: center;
+  background-color: rgba(255, 255, 255, 0.345);
+  border-radius: 10px;
+}
